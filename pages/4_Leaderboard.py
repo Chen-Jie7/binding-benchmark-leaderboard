@@ -10,23 +10,25 @@ submissions = load_submissions()
 if not submissions:
     st.info("No submissions yet. Be the first!")
 else:
-    rows = []
-    for s in submissions:
-        rows.append({
-            "model_name": s["model_name"],
-            "f1": s["metrics"]["f1"],
-            "accuracy": s["metrics"]["accuracy"],
-            "coverage_pct": s["coverage_pct"],
-            "submitted_at": s["submitted_at"][:10],
-            "description": s.get("description", ""),
-        })
+    df = pd.DataFrame(submissions)
 
-    df = pd.DataFrame(rows)
+    # Ensure numeric types (Google Sheets returns strings)
+    for col in ["f1", "accuracy", "coverage_pct"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Truncate timestamp to date
+    if "submitted_at" in df.columns:
+        df["submitted_at"] = df["submitted_at"].astype(str).str[:10]
+
     df = df.sort_values("f1", ascending=False).reset_index(drop=True)
     df.insert(0, "Rank", range(1, len(df) + 1))
 
+    display_cols = ["Rank", "model_name", "f1", "accuracy", "coverage_pct", "submitted_at", "description"]
+    display_cols = [c for c in display_cols if c in df.columns]
+
     st.dataframe(
-        df,
+        df[display_cols],
         use_container_width=True,
         hide_index=True,
         column_config={

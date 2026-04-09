@@ -94,10 +94,8 @@ if st.button("Submit", type="primary"):
                         "model_name": model_name.strip(),
                         "description": description.strip(),
                         "submitted_at": datetime.now(timezone.utc).isoformat(),
-                        "metrics": {
-                            "accuracy": result.accuracy,
-                            "f1": result.f1,
-                        },
+                        "f1": result.f1,
+                        "accuracy": result.accuracy,
                         "n_matched": result.n_matched,
                         "n_total_gt": result.n_total_gt,
                         "coverage_pct": result.coverage_pct,
